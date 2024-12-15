@@ -22,15 +22,23 @@ bl_info = {
   "category": "Render",
 }
 
-from . import auto_load
 import bpy
-
-auto_load.init()
+from . import CielPanel
+from . import CelShading
 
 
 def register():
-  auto_load.register()
-
+  bpy.types.Scene.color_texture_output = bpy.props.StringProperty \
+    (name = "Color Texture Output", description="Directory storing color textures", default="")
+  bpy.types.Scene.normal_map_output = bpy.props.StringProperty \
+    (name = "Normal Map Output", description="Directory storing normal maps", default="")
+  bpy.utils.register_class(CelShading.CelShadingOperator)
+  bpy.utils.register_class(CielPanel.CielPanel)
+  
+  print("CielShading registered.")
 
 def unregister():
-  auto_load.unregister()
+  bpy.utils.unregister_class(CelShading.CelShadingOperator)
+  bpy.utils.unregister_class(CielPanel.CielPanel)
+  del bpy.types.Scene.normal_map_output
+  del bpy.types.Scene.color_texture_output
