@@ -18,5 +18,12 @@ class CielPanel(bpy.types.Panel):
       row.prop(context.scene, "color_texture_output") # TODO: file dialog?
       row = layout.row()
       row.prop(context.scene, "normal_map_output") # TODO: file dialog?
+      try:
+        import PIL.Image
+        row = layout.row()
+        row.prop(context.scene, "atlas_row_num")
+      except:
+        row = layout.row()
+        row.label(text="Cannot install PIL.", icon="ERROR")
       row = layout.row()
       row.operator("export.cel_shading")

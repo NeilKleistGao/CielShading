@@ -1,6 +1,7 @@
 from enum import Enum
 import bpy
 import os
+from . import Merge17
 
 class RenderType(Enum):
   COLOR = 0
@@ -34,6 +35,7 @@ class CelShadingOperator(bpy.types.Operator):
     context.scene.render.film_transparent = True
     context.scene.render.image_settings.file_format = "PNG"
     bpy.ops.render.render(animation=True)
+    Merge17.merge(path, "../res.png", context.scene.render.resolution_x, context.scene.render.resolution_y, context.scene.atlas_row_num) # TODO: config
 
     context.scene.render.filepath = self.base_output_dir
     context.scene.render.engine = origin_engine
@@ -43,5 +45,6 @@ class CelShadingOperator(bpy.types.Operator):
   def execute(self, context: bpy.types.Context | None):
     self.base_output_dir = context.scene.render.filepath
     self.render_once(context.scene.color_texture_output, RenderType.COLOR, context)
-    self.render_once(context.scene.normal_map_output, RenderType.NORMAL_MAP, context)
+    if context.scene.normal_map_output != "":
+      self.render_once(context.scene.normal_map_output, RenderType.NORMAL_MAP, context)
     return { "FINISHED" }

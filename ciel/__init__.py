@@ -23,6 +23,7 @@ bl_info = {
 }
 
 import bpy
+import ensurepip
 from . import CielPanel
 from . import CelShading
 
@@ -32,13 +33,17 @@ def register():
     (name = "Color Texture Output", description="Directory storing color textures", default="")
   bpy.types.Scene.normal_map_output = bpy.props.StringProperty \
     (name = "Normal Map Output", description="Directory storing normal maps", default="")
+  bpy.types.Scene.atlas_row_num = bpy.props.IntProperty \
+    (name = "Maximum Number of Elements in a Row", description="How many frames can be put in a row", default=17)
   bpy.utils.register_class(CelShading.CelShadingOperator)
   bpy.utils.register_class(CielPanel.CielPanel)
-  
+
+  ensurepip.bootstrap()
   print("CielShading registered.")
 
 def unregister():
   bpy.utils.unregister_class(CelShading.CelShadingOperator)
   bpy.utils.unregister_class(CielPanel.CielPanel)
+  del bpy.types.Scene.atlas_row_num
   del bpy.types.Scene.normal_map_output
   del bpy.types.Scene.color_texture_output
