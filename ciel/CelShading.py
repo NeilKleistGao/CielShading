@@ -24,6 +24,8 @@ class CelShadingOperator(bpy.types.Operator):
     origin_engine = context.scene.render.engine
     origin_lighting = context.scene.display.shading.light
     origin_studio_light = context.scene.display.shading.studio_light
+    origin_backface_culling = context.scene.display.shading.show_backface_culling
+    origin_freestyle = context.scene.render.use_freestyle
     if render_type == RenderType.COLOR:
       context.scene.render.engine = "CYCLES" # TODO: config
       context.scene.display.shading.light = "STUDIO"
@@ -31,12 +33,17 @@ class CelShadingOperator(bpy.types.Operator):
       context.scene.render.engine = "BLENDER_WORKBENCH"
       context.scene.display.shading.light = "MATCAP"
       context.scene.display.shading.studio_light = "check_normal+y.exr"
+      context.scene.display.shading.color_type = "OBJECT"
+      context.scene.display.shading.show_backface_culling = True
+      context.scene.render.use_freestyle = False
 
     context.scene.render.film_transparent = True
     context.scene.render.image_settings.file_format = "PNG"
     bpy.ops.render.render(animation=True)
     Merge17.merge(path, "../res.png", context.scene.render.resolution_x, context.scene.render.resolution_y, context.scene.atlas_row_num) # TODO: config
 
+    context.scene.render.use_freestyle = origin_freestyle
+    context.scene.display.shading.show_backface_culling = origin_backface_culling
     context.scene.render.filepath = self.base_output_dir
     context.scene.render.engine = origin_engine
     context.scene.display.shading.light = origin_lighting
