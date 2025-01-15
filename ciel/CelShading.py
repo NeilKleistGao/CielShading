@@ -16,7 +16,7 @@ class CelShadingOperator(bpy.types.Operator):
 
   base_output_dir = ""
 
-  def render_once(self, path: str, render_type: RenderType, context: bpy.types.Context | None):
+  def render_once(self, path: str, prefix: str, render_type: RenderType, context: bpy.types.Context | None):
     path = os.path.join(self.base_output_dir, path)
     print("output: " + path)
     context.scene.render.filepath = path
@@ -40,7 +40,8 @@ class CelShadingOperator(bpy.types.Operator):
     context.scene.render.film_transparent = True
     context.scene.render.image_settings.file_format = "PNG"
     bpy.ops.render.render(animation=True)
-    Merge17.merge(path, "../res.png", context.scene.render.resolution_x, context.scene.render.resolution_y, context.scene.atlas_row_num) # TODO: config
+    output_name = "../" + prefix + ".png" if render_type == RenderType.COLOR else "../" + prefix + "Normal.png"
+    Merge17.merge(path, output_name, context.scene.render.resolution_x, context.scene.render.resolution_y, context.scene.atlas_row_num)
 
     context.scene.render.use_freestyle = origin_freestyle
     context.scene.display.shading.show_backface_culling = origin_backface_culling
@@ -51,7 +52,7 @@ class CelShadingOperator(bpy.types.Operator):
 
   def execute(self, context: bpy.types.Context | None):
     self.base_output_dir = context.scene.render.filepath
-    self.render_once(context.scene.color_texture_output, RenderType.COLOR, context)
+    self.render_once(context.scene.color_texture_output, context.scene.output_prefix, RenderType.COLOR, context)
     if context.scene.normal_map_output != "":
-      self.render_once(context.scene.normal_map_output, RenderType.NORMAL_MAP, context)
+      self.render_once(context.scene.normal_map_output, context.scene.output_prefix, RenderType.NORMAL_MAP, context)
     return { "FINISHED" }
