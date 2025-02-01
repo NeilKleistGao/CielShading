@@ -35,6 +35,8 @@ def register():
     (name = "Normal Map Output", description="Directory storing normal maps", default="")
   bpy.types.Scene.output_prefix = bpy.props.StringProperty \
     (name = "Output Prefix", description="Prefix of output files", default="Ciel")
+  bpy.types.Scene.config_file = bpy.props.StringProperty \
+    (name = "Config File", description="Path to the config file", default="")
   bpy.types.Scene.atlas_row_num = bpy.props.IntProperty \
     (name = "Maximum Number of Elements in a Row", description="How many frames can be put in a row", default=17)
   bpy.utils.register_class(CelShading.CelShadingOperator)
@@ -46,6 +48,7 @@ def register():
 def unregister():
   bpy.utils.unregister_class(CelShading.CelShadingOperator)
   bpy.utils.unregister_class(CielPanel.CielPanel)
+  del bpy.types.Scene.config_file
   del bpy.types.Scene.output_prefix
   del bpy.types.Scene.atlas_row_num
   del bpy.types.Scene.normal_map_output

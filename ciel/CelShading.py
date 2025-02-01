@@ -1,7 +1,7 @@
 from enum import Enum
 import bpy
 import os
-from . import Merge17
+from . import Merge17, AnimationData
 
 class RenderType(Enum):
   COLOR = 0
@@ -27,7 +27,7 @@ class CelShadingOperator(bpy.types.Operator):
     origin_backface_culling = context.scene.display.shading.show_backface_culling
     origin_freestyle = context.scene.render.use_freestyle
     if render_type == RenderType.COLOR:
-      context.scene.render.engine = "CYCLES" # TODO: config
+      context.scene.render.engine = "BLENDER_EEVEE_NEXT"
       context.scene.display.shading.light = "STUDIO"
     else:
       context.scene.render.engine = "BLENDER_WORKBENCH"
@@ -52,7 +52,26 @@ class CelShadingOperator(bpy.types.Operator):
 
   def execute(self, context: bpy.types.Context | None):
     self.base_output_dir = context.scene.render.filepath
-    self.render_once(context.scene.color_texture_output, context.scene.output_prefix, RenderType.COLOR, context)
-    if context.scene.normal_map_output != "":
-      self.render_once(context.scene.normal_map_output, context.scene.output_prefix, RenderType.NORMAL_MAP, context)
+    if len(context.scene.config_file) > 0:
+      fp = open(os.path.join(self.base_output_dir, context.scene.config_file), "r")
+      content = fp.read()
+      fp.close()
+      data, content = AnimationData.parse_animation_data(content.strip())
+      while data.isDefined():
+        print("Generating " + data.name)
+        context.scene.frame_start = data.begin
+        context.scene.frame_end = data.end
+        context.scene.frame_step = data.step
+        # TODO: action?
+        self.render_once(os.path.join(context.scene.color_texture_output, data.name + "/"), data.name, RenderType.COLOR, context)
+        if context.scene.normal_map_output != "":
+          self.render_once(os.path.join(context.scene.normal_map_output, data.name + "/"), data.name, RenderType.NORMAL_MAP, context)
+        if len(content) == 0:
+          break
+        data, content = AnimationData.parse_animation_data(content.strip())
+    else:
+      self.render_once(context.scene.color_texture_output, context.scene.output_prefix, RenderType.COLOR, context)
+      if context.scene.normal_map_output != "":
+        self.render_once(context.scene.normal_map_output, context.scene.output_prefix, RenderType.NORMAL_MAP, context)
     return { "FINISHED" }
+  

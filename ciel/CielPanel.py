@@ -20,6 +20,8 @@ class CielPanel(bpy.types.Panel):
       row.prop(context.scene, "normal_map_output") # TODO: file dialog?
       row = layout.row()
       row.prop(context.scene, "output_prefix")
+      row = layout.row()
+      row.prop(context.scene, "config_file") # TODO: file dialog?
       try:
         import PIL.Image
         row = layout.row()
