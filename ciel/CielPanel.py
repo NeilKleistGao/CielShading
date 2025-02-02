@@ -15,6 +15,8 @@ class CielPanel(bpy.types.Panel):
       row.label(text="Please add a camera first.", icon="ERROR")
     else:
       row = layout.row()
+      row.prop(context.scene, "armature_name") # TODO: object dialog?
+      row = layout.row()
       row.prop(context.scene, "color_texture_output") # TODO: file dialog?
       row = layout.row()
       row.prop(context.scene, "normal_map_output") # TODO: file dialog?

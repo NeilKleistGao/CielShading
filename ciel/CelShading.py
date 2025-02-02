@@ -51,6 +51,7 @@ class CelShadingOperator(bpy.types.Operator):
     context.scene.display.shading.studio_light = origin_studio_light
 
   def execute(self, context: bpy.types.Context | None):
+    armature = bpy.data.armatures.get(context.scene.armature_name) if len(context.scene.armature_name) > 0 else None
     self.base_output_dir = context.scene.render.filepath
     if len(context.scene.config_file) > 0:
       fp = open(os.path.join(self.base_output_dir, context.scene.config_file), "r")
@@ -62,7 +63,13 @@ class CelShadingOperator(bpy.types.Operator):
         context.scene.frame_start = data.begin
         context.scene.frame_end = data.end
         context.scene.frame_step = data.step
-        # TODO: action?
+
+        if armature is not None:
+          if armature.animation_data is None:
+            armature.animation_data_create()
+          print("Update action")
+          armature.animation_data.action = bpy.data.actions.get(data.action)
+
         self.render_once(os.path.join(context.scene.color_texture_output, data.name + "/"), data.name, RenderType.COLOR, context)
         if context.scene.normal_map_output != "":
           self.render_once(os.path.join(context.scene.normal_map_output, data.name + "/"), data.name, RenderType.NORMAL_MAP, context)

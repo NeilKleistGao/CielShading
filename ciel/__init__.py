@@ -29,6 +29,8 @@ from . import CelShading
 
 
 def register():
+  bpy.types.Scene.armature_name = bpy.props.StringProperty \
+    (name = "Armature Name", description="Target armature's name (can be empty if no action is required)", default="")
   bpy.types.Scene.color_texture_output = bpy.props.StringProperty \
     (name = "Color Texture Output", description="Directory storing color textures", default="")
   bpy.types.Scene.normal_map_output = bpy.props.StringProperty \
@@ -53,3 +55,4 @@ def unregister():
   del bpy.types.Scene.atlas_row_num
   del bpy.types.Scene.normal_map_output
   del bpy.types.Scene.color_texture_output
+  del bpy.types.Scene.armature_name
