@@ -8,6 +8,13 @@ class RenderType(Enum):
   NORMAL_MAP = 1
 
 
+def formatIndex(i):
+  s = str(i)
+  while len(s) < 4:
+    s = "0" + s
+  return s
+
+
 class CelShadingOperator(bpy.types.Operator):
   """Output color textures and normal maps"""
   bl_idname = "export.cel_shading"
@@ -16,7 +23,7 @@ class CelShadingOperator(bpy.types.Operator):
 
   base_output_dir = ""
 
-  def render_once(self, path: str, prefix: str, render_type: RenderType, context: bpy.types.Context | None):
+  def render_once(self, path: str, prefix: str, render_type: RenderType, context: bpy.types.Context | None, frames: range | None):
     path = os.path.join(self.base_output_dir, path)
     print("output: " + path)
     context.scene.render.filepath = path
@@ -39,7 +46,13 @@ class CelShadingOperator(bpy.types.Operator):
 
     context.scene.render.film_transparent = True
     context.scene.render.image_settings.file_format = "PNG"
-    bpy.ops.render.render(animation=True)
+    if frames is None:
+      bpy.ops.render.render(animation=True)
+    else:
+      for f in frames:
+        context.scene.frame_set(f)
+        bpy.ops.render.render(animation=False)
+        bpy.data.images["Render Result"].save_render(os.path.join(path, formatIndex(f) + ".png"))
     output_name = "../" + prefix + ".png" if render_type == RenderType.COLOR else "../" + prefix + "Normal.png"
     Merge17.merge(path, output_name, context.scene.render.resolution_x, context.scene.render.resolution_y, context.scene.atlas_row_num)
 
@@ -67,25 +80,24 @@ class CelShadingOperator(bpy.types.Operator):
         context.scene.frame_start = data.begin
         context.scene.frame_end = data.end
         context.scene.frame_step = data.step
+        frames = range(data.begin, data.end + 1, data.step)
 
         if armature is not None:
           if armature.animation_data is None:
             armature.animation_data_create()
           print("Update action")
           armature.animation_data.action = bpy.data.actions.get(data.action)
-        bpy.ops.pose.select_all(action="SELECT")
-        bpy.ops.pose.transforms_clear()
-        context.scene.frame_set(data.begin)
+        bpy.ops.object.mode_set(mode="OBJECT")
 
-        self.render_once(os.path.join(context.scene.color_texture_output, data.name + "/"), data.name, RenderType.COLOR, context)
+        self.render_once(os.path.join(context.scene.color_texture_output, data.name + "/"), data.name, RenderType.COLOR, context, frames)
         if context.scene.normal_map_output != "":
-          self.render_once(os.path.join(context.scene.normal_map_output, data.name + "/"), data.name, RenderType.NORMAL_MAP, context)
+          self.render_once(os.path.join(context.scene.normal_map_output, data.name + "/"), data.name, RenderType.NORMAL_MAP, context, frames)
         if len(content) == 0:
           break
         data, content = AnimationData.parse_animation_data(content.strip())
     else:
-      self.render_once(context.scene.color_texture_output, context.scene.output_prefix, RenderType.COLOR, context)
+      self.render_once(context.scene.color_texture_output, context.scene.output_prefix, RenderType.COLOR, context, None)
       if context.scene.normal_map_output != "":
-        self.render_once(context.scene.normal_map_output, context.scene.output_prefix, RenderType.NORMAL_MAP, context)
+        self.render_once(context.scene.normal_map_output, context.scene.output_prefix, RenderType.NORMAL_MAP, context, None)
     return { "FINISHED" }
   
