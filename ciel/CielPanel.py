@@ -24,6 +24,11 @@ class CielPanel(bpy.types.Panel):
       row.prop(context.scene, "output_prefix")
       row = layout.row()
       row.prop(context.scene, "config_file") # TODO: file dialog?
+      row = layout.row()
+      row.prop(context.scene, "flip_animation")
+      if context.scene.flip_animation:
+        row = layout.row()
+        row.prop(context.scene, "default_right")
       try:
         import PIL.Image
         row = layout.row()

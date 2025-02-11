@@ -22,6 +22,7 @@ class CelShadingOperator(bpy.types.Operator):
   bl_options = { "REGISTER", "UNDO" }
 
   base_output_dir = ""
+  PI = 3.1415926535
 
   def render_once(self, path: str, prefix: str, render_type: RenderType, context: bpy.types.Context | None, frames: range | None):
     path = os.path.join(self.base_output_dir, path)
@@ -63,6 +64,23 @@ class CelShadingOperator(bpy.types.Operator):
     context.scene.display.shading.light = origin_lighting
     context.scene.display.shading.studio_light = origin_studio_light
 
+  def render_and_flip(self, path: str, prefix: str, render_type: RenderType, context: bpy.types.Context | None, frames: range | None):
+    if not context.scene.flip_animation:
+      self.render_once(path, prefix, render_type, context, frames)
+    else:
+      suffix = "_R" if context.scene.default_right else "_L"
+      self.render_once(path, prefix + suffix, render_type, context, frames)
+      suffix = "_R" if not context.scene.default_right else "_L"
+      camera = context.scene.camera
+
+      # TODO: allow user to indicate
+      # x = -x, rotZ += 180 degree
+      camera.location.x = -camera.location.x
+      camera.rotation_euler.z += self.PI
+      self.render_once(path, prefix + suffix, render_type, context, frames)
+      camera.rotation_euler.z -= self.PI
+      camera.location.x = -camera.location.x
+
   def execute(self, context: bpy.types.Context | None):
     armature = bpy.data.objects.get(context.scene.armature_name) if len(context.scene.armature_name) > 0 else None
     if armature is not None:
@@ -89,15 +107,15 @@ class CelShadingOperator(bpy.types.Operator):
           armature.animation_data.action = bpy.data.actions.get(data.action)
         bpy.ops.object.mode_set(mode="OBJECT")
 
-        self.render_once(os.path.join(context.scene.color_texture_output, data.name + "/"), data.name, RenderType.COLOR, context, frames)
+        self.render_and_flip(os.path.join(context.scene.color_texture_output, data.name + "/"), data.name, RenderType.COLOR, context, frames)
         if context.scene.normal_map_output != "":
-          self.render_once(os.path.join(context.scene.normal_map_output, data.name + "/"), data.name, RenderType.NORMAL_MAP, context, frames)
+          self.render_and_flip(os.path.join(context.scene.normal_map_output, data.name + "/"), data.name, RenderType.NORMAL_MAP, context, frames)
         if len(content) == 0:
           break
         data, content = AnimationData.parse_animation_data(content.strip())
     else:
-      self.render_once(context.scene.color_texture_output, context.scene.output_prefix, RenderType.COLOR, context, None)
+      self.render_and_flip(context.scene.color_texture_output, context.scene.output_prefix, RenderType.COLOR, context, None)
       if context.scene.normal_map_output != "":
-        self.render_once(context.scene.normal_map_output, context.scene.output_prefix, RenderType.NORMAL_MAP, context, None)
+        self.render_and_flip(context.scene.normal_map_output, context.scene.output_prefix, RenderType.NORMAL_MAP, context, None)
     return { "FINISHED" }
   

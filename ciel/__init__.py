@@ -41,6 +41,10 @@ def register():
     (name = "Config File", description="Path to the config file", default="")
   bpy.types.Scene.atlas_row_num = bpy.props.IntProperty \
     (name = "Maximum Number of Elements in a Row", description="How many frames can be put in a row", default=17)
+  bpy.types.Scene.flip_animation = bpy.props.BoolProperty \
+    (name = "Flip the Camera", description="Flip the camera to capture another side's animation", default=False)
+  bpy.types.Scene.default_right = bpy.props.BoolProperty \
+    (name = "Right Defaultly", description="Is the armature facing right defaultly", default=True)
   bpy.utils.register_class(CelShading.CelShadingOperator)
   bpy.utils.register_class(CielPanel.CielPanel)
 
@@ -50,6 +54,8 @@ def register():
 def unregister():
   bpy.utils.unregister_class(CelShading.CelShadingOperator)
   bpy.utils.unregister_class(CielPanel.CielPanel)
+  del bpy.types.Scene.default_right
+  del bpy.types.Scene.flip_animation
   del bpy.types.Scene.config_file
   del bpy.types.Scene.output_prefix
   del bpy.types.Scene.atlas_row_num
