@@ -37,6 +37,7 @@ class CelShadingOperator(bpy.types.Operator):
     if render_type == RenderType.COLOR:
       context.scene.render.engine = "BLENDER_EEVEE_NEXT"
       context.scene.display.shading.light = "STUDIO"
+      context.scene.render.use_compositing = False # TODO: config
     else:
       context.scene.render.engine = "BLENDER_WORKBENCH"
       context.scene.display.shading.light = "MATCAP"
@@ -44,7 +45,9 @@ class CelShadingOperator(bpy.types.Operator):
       context.scene.display.shading.color_type = "OBJECT"
       context.scene.display.shading.show_backface_culling = True
       context.scene.render.use_freestyle = False
+      context.scene.render.use_compositing = True # TODO: config
 
+    self.change_outline_modifiers(context, render_type == RenderType.COLOR)
     context.scene.render.film_transparent = True
     context.scene.render.image_settings.file_format = "PNG"
     if frames is None:
@@ -80,6 +83,12 @@ class CelShadingOperator(bpy.types.Operator):
       self.render_once(path, prefix + suffix, render_type, context, frames)
       camera.rotation_euler.z -= self.PI
       camera.location.x = -camera.location.x
+
+  def change_outline_modifiers(self, context: bpy.types.Context | None, enable: bool):
+    for obj in bpy.data.objects:
+      for modifier in obj.modifiers:
+        if modifier.type == "SOLIDIFY" and modifier.use_flip_normals: # for outlines
+          modifier.show_render = enable
 
   def execute(self, context: bpy.types.Context | None):
     armature = bpy.data.objects.get(context.scene.armature_name) if len(context.scene.armature_name) > 0 else None
