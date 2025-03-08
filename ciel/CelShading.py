@@ -34,6 +34,7 @@ class CelShadingOperator(bpy.types.Operator):
     origin_studio_light = context.scene.display.shading.studio_light
     origin_backface_culling = context.scene.display.shading.show_backface_culling
     origin_freestyle = context.scene.render.use_freestyle
+    orgin_compositing = context.scene.render.use_compositing
     if render_type == RenderType.COLOR:
       context.scene.render.engine = "BLENDER_EEVEE_NEXT"
       context.scene.display.shading.light = "STUDIO"
@@ -47,7 +48,8 @@ class CelShadingOperator(bpy.types.Operator):
       context.scene.render.use_freestyle = False
       context.scene.render.use_compositing = True # TODO: config
 
-    self.change_outline_modifiers(context, render_type == RenderType.COLOR)
+    if render_type != RenderType.COLOR:
+      self.change_outline_modifiers(context, False)
     context.scene.render.film_transparent = True
     context.scene.render.image_settings.file_format = "PNG"
     if frames is None:
@@ -60,6 +62,10 @@ class CelShadingOperator(bpy.types.Operator):
     output_name = "../" + prefix + ".png" if render_type == RenderType.COLOR else "../" + prefix + "Normal.png"
     Merge17.merge(path, output_name, context.scene.render.resolution_x, context.scene.render.resolution_y, context.scene.atlas_row_num)
 
+    if render_type != RenderType.COLOR:
+      self.change_outline_modifiers(context, True)
+
+    context.scene.render.use_compositing = orgin_compositing
     context.scene.render.use_freestyle = origin_freestyle
     context.scene.display.shading.show_backface_culling = origin_backface_culling
     context.scene.render.filepath = self.base_output_dir
