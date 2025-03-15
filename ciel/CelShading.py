@@ -28,6 +28,7 @@ class CelShadingOperator(bpy.types.Operator):
     path = os.path.join(self.base_output_dir, path)
     print("output: " + path)
     context.scene.render.filepath = path
+    Merge17.clean(path)
 
     origin_engine = context.scene.render.engine
     origin_lighting = context.scene.display.shading.light
@@ -59,7 +60,7 @@ class CelShadingOperator(bpy.types.Operator):
         context.scene.frame_set(f)
         bpy.ops.render.render(animation=False)
         bpy.data.images["Render Result"].save_render(os.path.join(path, formatIndex(f) + ".png"))
-    output_name = "../" + prefix + ".png" if render_type == RenderType.COLOR else "../" + prefix + "Normal.png"
+    output_name = "../" + prefix + ".png" if render_type == RenderType.COLOR else "../" + prefix + "_N.png"
     Merge17.merge(path, output_name, context.scene.render.resolution_x, context.scene.render.resolution_y, context.scene.atlas_row_num)
 
     if render_type != RenderType.COLOR:

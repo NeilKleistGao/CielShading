@@ -2,6 +2,14 @@ import os
 import math
 
 
+def clean(dir: str):
+  files = os.listdir(dir)
+  for file in files:
+    path = os.path.join(dir, file)
+    if os.path.isfile(path):
+      os.remove(path)
+
+
 def merge(dir: str, filename: str, width: int, height: int, dv: int):
   files = os.listdir(dir)
   cnt = len(files)
