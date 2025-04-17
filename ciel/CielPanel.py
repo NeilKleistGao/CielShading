@@ -29,12 +29,12 @@ class CielPanel(bpy.types.Panel):
       if context.scene.flip_animation:
         row = layout.row()
         row.prop(context.scene, "default_right")
-      try:
-        import PIL.Image
-        row = layout.row()
-        row.prop(context.scene, "atlas_row_num")
-      except:
-        row = layout.row()
-        row.label(text="Cannot install PIL.", icon="ERROR")
+      # try:
+      #   import PIL.Image
+      #   row = layout.row()
+      #   row.prop(context.scene, "atlas_row_num")
+      # except:
+      #   row = layout.row()
+      #   row.label(text="Cannot install PIL.", icon="ERROR")
       row = layout.row()
       row.operator("export.cel_shading")
