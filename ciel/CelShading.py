@@ -61,7 +61,7 @@ class CelShadingOperator(bpy.types.Operator):
         bpy.ops.render.render(animation=False)
         bpy.data.images["Render Result"].save_render(os.path.join(path, formatIndex(f) + ".png"))
     output_name = "../" + prefix + ".png" if render_type == RenderType.COLOR else "../" + prefix + "_N.png"
-    # Merge17.merge(path, output_name, context.scene.render.resolution_x, context.scene.render.resolution_y, context.scene.atlas_row_num)
+    Merge17.merge(path, output_name, context.scene.render.resolution_x, context.scene.render.resolution_y, context.scene.atlas_row_num)
 
     if render_type != RenderType.COLOR:
       self.change_outline_modifiers(context, True)

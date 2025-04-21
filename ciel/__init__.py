@@ -39,8 +39,8 @@ def register():
     (name = "Output Prefix", description="Prefix of output files", default="Ciel")
   bpy.types.Scene.config_file = bpy.props.StringProperty \
     (name = "Config File", description="Path to the config file", default="")
-  # bpy.types.Scene.atlas_row_num = bpy.props.IntProperty \
-  #   (name = "Maximum Number of Elements in a Row", description="How many frames can be put in a row", default=17)
+  bpy.types.Scene.atlas_row_num = bpy.props.IntProperty \
+    (name = "Maximum Number of Elements in a Row", description="How many frames can be put in a row", default=17)
   bpy.types.Scene.flip_animation = bpy.props.BoolProperty \
     (name = "Flip the Camera", description="Flip the camera to capture another side's animation", default=False)
   bpy.types.Scene.default_right = bpy.props.BoolProperty \
@@ -58,7 +58,7 @@ def unregister():
   del bpy.types.Scene.flip_animation
   del bpy.types.Scene.config_file
   del bpy.types.Scene.output_prefix
-  # del bpy.types.Scene.atlas_row_num
+  del bpy.types.Scene.atlas_row_num
   del bpy.types.Scene.normal_map_output
   del bpy.types.Scene.color_texture_output
   del bpy.types.Scene.armature_name
