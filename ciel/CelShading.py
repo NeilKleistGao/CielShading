@@ -114,6 +114,7 @@ class CelShadingOperator(bpy.types.Operator):
         context.scene.frame_start = data.begin
         context.scene.frame_end = data.end
         context.scene.frame_step = data.step
+        context.scene.camera = bpy.data.objects.get(data.camera)
         frames = range(data.begin, data.end + 1, data.step)
 
         if armature is not None:

@@ -4,6 +4,7 @@ class AnimationData:
   end = 250
   step = 1
   action = ""
+  camera = ""
 
   def set(self, name: str, value: str):
     if name == "begin":
@@ -14,6 +15,8 @@ class AnimationData:
       self.step = int(value)
     elif name == "action":
       self.action = value
+    elif name == "camera":
+      self.camera = value
     else:
       print(name + " not found.")
   
